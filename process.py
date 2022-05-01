@@ -1,5 +1,6 @@
 """In this version of the server main replica resets when another client connects """
 from multiprocessing import connection
+from sre_parse import State
 import rpyc
 from rpyc.utils.server import ThreadedServer,OneShotServer
 import datetime
@@ -27,21 +28,26 @@ ATTACK="attack"
 RETREAT="retreat"
 receivedCommand=""
 majorityCommand=""
+isVoting=False
 import _thread
 
 def bully():
         i=0
         global thisPort
+        global isVoting
+        global isPrimary
         smallest=thisPort
         for port in otherProcessPorts:
             if port<smallest:
                 smallest=port
                 i+=1
         if(smallest==thisPort):
-            pass
+            isPrimary=True
         else:
             for j in range(i):
-                pass
+                connections[j].root.bully()
+        isVoting=True
+        
 
 
 # class Timer:
@@ -58,6 +64,7 @@ def bully():
         
 #     def run(self):
 #         global isPrimary
+#         global isVoting
 #         while True:
 #             while self.currentTime:
 #                 time.sleep(1)
@@ -75,7 +82,6 @@ def bully():
 # timer.start()
 
 class ProcessService(rpyc.Service):
-    global majorityCommand
     global currentState
 
     def exposed_addGeneral(self,ports):
@@ -99,7 +105,13 @@ class ProcessService(rpyc.Service):
             connections.append(rpyc.connect("localhost",port))
     
     # def exposed_bully(self):
-    #     pass
+    #     if(not isVoting):
+    #         bully()
+
+
+    def exposed_die(self):
+        for conn in connection:
+            conn.close()
 
     
 
@@ -127,6 +139,9 @@ class ProcessService(rpyc.Service):
             global NONFAULTY
             currentState=NONFAULTY
     def exposed_giveCommand(self,command):
+        global majorityCommand
+        
+        majorityCommand=command
         for conn in connections:
             conn.root.getCommand(command)
         attackCount,retreatCount=0,0
@@ -152,7 +167,9 @@ class ProcessService(rpyc.Service):
         receivedCommand=command
 
     def exposed_validateCommand(self):
+        global majorityCommand
         global ATTACK
+        global RETREAT
         allCommands=[]
         attackCount=0
         retreatCount=0
@@ -164,7 +181,23 @@ class ProcessService(rpyc.Service):
                 attackCount+=1
             else:
                 retreatCount+=1
+        if(attackCount>retreatCount):
+            majorityCommand=ATTACK
+        elif(attackCount<retreatCount):
+            majorityCommand=RETREAT
+        else:
+            majorityCommand="undefined"
+
         return attackCount,retreatCount
+
+    def exposed_getMajority(self):
+        global majorityCommand
+
+        return majorityCommand
+    def exposed_getState(self):
+        global currentState
+
+        return currentState
 
 
     def exposed_returnMyCommand(self):
