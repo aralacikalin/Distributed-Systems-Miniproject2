@@ -145,7 +145,7 @@ class ProcessService(rpyc.Service):
         for conn in connections:
             conn.root.getCommand(command)
         attackCount,retreatCount=0,0
-        for conn in connection:
+        for conn in connections:
             attackCount,retreatCount=conn.root.exposed_validateCommand()
         if(attackCount>retreatCount):
             faultyNodesCount=len(connections)-attackCount

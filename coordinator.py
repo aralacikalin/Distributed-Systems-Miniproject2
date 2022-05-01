@@ -59,7 +59,7 @@ generals = generals[1:]
 primary_general_port = general_ports[0]
 general_ports = general_ports[1:]
 
-primary_general.addGenerals( general_ports ) 
+primary_general.root.addGenerals( general_ports ) 
 
 ## general other_ps_ports ==> add_generals 
 for idx, conn in enumerate(generals):
@@ -79,11 +79,12 @@ while running:
         ## primary_general is None, then find new primary general
         full_output = primary_general.root.giveOrder( cmds[1] )
         
-        print( f'G{id_to_port[primary_general_port]}, primary, majority={primary_general.root.getMajority()}, state={primary_general.root.get_state()}' )
+        print( f'G{port_to_id[primary_general_port]}, primary, majority={primary_general.root.getMajority()}, state={primary_general.root.getState()}' )
+
         for general in generals:
             general_state = general.root.getState()
             majority = general.root.getMajority()
-            print( f'G??{}, secondary, majority={majority}, state={general_state}' )
+            print( f'G??, secondary, majority={majority}, state={general_state}' )
     elif cmds[0] == 'g-state':
         if len(cmds) > 1:
             id = int(cmds[1])
@@ -97,27 +98,27 @@ while running:
 
             process_output = conn.root.setState( new_state.upper() )
         else:
-            print( f'G{id_to_port[primary_general_port]}, primary, state={primary_general.root.get_state()}' )
+            print( f'G{port_to_id[primary_general_port]}, primary, state={primary_general.root.getState()}' )
             for general in generals:
                 general_state = general.root.getState()
-                print( f'G??{}, secondary, state={general_state}' )
+                print( f'G??, secondary, state={general_state}' )
             
-    for idx, general in enumerate(generals):
+    # for idx, general in enumerate(generals):
 
-        if command.lower() == 'exit':
-            try:
-                running=False
-                conn.root.exit()
-            except:
-                break
-            break
-        else:
-            cmd_name, value = command.split()
+    #     if command.lower() == 'exit':
+    #         try:
+    #             running=False
+    #             conn.root.exit()
+    #         except:
+    #             break
+    #         break
+    #     else:
+    #         cmd_name, value = command.split()
 
-            if cmd_name.lower() == 'time-cs':
-                conn.root.time_cs( int(value) )
-            elif cmd_name.lower() == 'time-p':
-                conn.root.time_p( int(value) )
+    #         if cmd_name.lower() == 'time-cs':
+    #             conn.root.time_cs( int(value) )
+    #         elif cmd_name.lower() == 'time-p':
+    #             conn.root.time_p( int(value) )
 
 
 for conn in connections:
