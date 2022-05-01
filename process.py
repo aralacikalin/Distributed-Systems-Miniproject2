@@ -84,7 +84,7 @@ def bully():
 class ProcessService(rpyc.Service):
     global currentState
 
-    def exposed_addGeneral(self,ports):
+    def exposed_addGenerals(self,ports):
         global otherProcessPorts
         global connections
         for port in ports:
@@ -138,7 +138,7 @@ class ProcessService(rpyc.Service):
         else:
             global NONFAULTY
             currentState=NONFAULTY
-    def exposed_giveCommand(self,command):
+    def exposed_giveOrder(self,command):
         global majorityCommand
         
         majorityCommand=command
@@ -160,7 +160,10 @@ class ProcessService(rpyc.Service):
             allGeneralCount=attackCount+retreatCount+1
             return f"Execute order: cannot be determined - not enough generals in the system! {faultyNodesCount} faulty node in the system - {retreatCount+attackCount} out of {allGeneralCount} quorum suggest retreat"
 
-        
+    def exposed_setState(self,state):
+        global currentState
+        currentState=state
+
     
     def exposed_getCommand(self,command):
         global receivedCommand
