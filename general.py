@@ -182,8 +182,11 @@ class ProcessService(rpyc.Service):
         for command in allCommands:
             if(command==ATTACK):
                 attackCount+=1
+                print("Attack")
             else:
                 retreatCount+=1
+                print("Retreat")
+
         if(attackCount>retreatCount):
             majorityCommand=ATTACK
         elif(attackCount<retreatCount):
