@@ -85,6 +85,8 @@ while running:
             general_state = general.root.getState()
             majority = general.root.getMajority()
             print( f'G??, secondary, majority={majority}, state={general_state}' )
+        
+        print( full_output )
     elif cmds[0] == 'g-state':
         if len(cmds) > 1:
             id = int(cmds[1])
@@ -102,6 +104,42 @@ while running:
             for general in generals:
                 general_state = general.root.getState()
                 print( f'G??, secondary, state={general_state}' )
+
+    elif cmds[0] == 'g-add':
+        num_new_generals = int(cmds[1])
+        for i in range(num_new_generals):
+            general_ports.append( start_port+friendly_id+i )
+            
+            cmd = 'python general.py ' + str(start_port+friendly_id+i) #+ ' ' + str(friendly_id)
+            print( 'cmd', cmd.split() )
+            
+            port_to_id[ start_port+friendly_id+i ] = friendly_id
+            id_to_port[ friendly_id ] = start_port+friendly_id+i
+
+            friendly_id += 1
+
+            p = subprocess.Popen( cmd.split() )
+            processes.append(p)
+
+        generals = []
+        for port in general_ports:
+            generals.append( rpyc.connect('localhost',port) )
+
+        primary_general = generals[0]
+        generals = generals[1:]
+
+        primary_general_port = general_ports[0]
+        general_ports = general_ports[1:]
+
+        primary_general.root.addGenerals( general_ports ) 
+
+        ## general other_ps_ports ==> add_generals 
+        for idx, conn in enumerate(generals):
+            other_ps_ports = all_ports_except( general_ports, general_ports[idx] )
+            conn.root.addGenerals( other_ps_ports )
+
+
+
             
     # for idx, general in enumerate(generals):
 

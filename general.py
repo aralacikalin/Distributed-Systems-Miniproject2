@@ -173,19 +173,28 @@ class ProcessService(rpyc.Service):
         global majorityCommand
         global ATTACK
         global RETREAT
+        global thisPort
+
         allCommands=[]
         attackCount=0
         retreatCount=0
         for conn in connections:
             res=conn.root.returnMyCommand()
             allCommands.append(res)
+        
+        if(receivedCommand==ATTACK):
+            attackCount+=1
+        else:
+            retreatCount+=1
+
+
         for command in allCommands:
             if(command==ATTACK):
                 attackCount+=1
-                print("Attack")
+                print( f"{thisPort} Attack")
             else:
                 retreatCount+=1
-                print("Retreat")
+                print(f"{thisPort} Retreat")
 
         if(attackCount>retreatCount):
             majorityCommand=ATTACK
