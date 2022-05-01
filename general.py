@@ -1,6 +1,5 @@
 """In this version of the server main replica resets when another client connects """
 from multiprocessing import connection
-from sre_parse import State
 import rpyc
 from rpyc.utils.server import ThreadedServer,OneShotServer
 import datetime
@@ -81,6 +80,8 @@ def bully():
 # timer=Timer()
 # timer.start()
 
+commandToSend=""
+
 class ProcessService(rpyc.Service):
     global currentState
 
@@ -158,7 +159,7 @@ class ProcessService(rpyc.Service):
         else:
             faultyNodesCount=retreatCount
             allGeneralCount=attackCount+retreatCount+1
-            return f"Execute order: cannot be determined - not enough generals in the system! {faultyNodesCount} faulty node in the system - {retreatCount+attackCount} out of {allGeneralCount} quorum suggest retreat"
+            return f"Execute order: cannot be determined - not enough generals in the system! {faultyNodesCount} faulty node in the system - {retreatCount+attackCount} out of {allGeneralCount} quorum not consistent"
 
     def exposed_setState(self,state):
         global currentState
@@ -167,13 +168,23 @@ class ProcessService(rpyc.Service):
     
     def exposed_getCommand(self,command):
         global receivedCommand
+        global currentState
+        global FAULTY
+        global commandToSend
         receivedCommand=command
+        commandToSend=command
+        if(currentState==FAULTY):
+            if(receivedCommand==ATTACK):
+                commandToSend =RETREAT
+            else:
+                commandToSend= ATTACK
 
     def exposed_validateCommand(self):
         global majorityCommand
         global ATTACK
         global RETREAT
         global thisPort
+        global commandToSend
 
         allCommands=[]
         attackCount=0
@@ -182,7 +193,7 @@ class ProcessService(rpyc.Service):
             res=conn.root.returnMyCommand()
             allCommands.append(res)
         
-        if(receivedCommand==ATTACK):
+        if(commandToSend==ATTACK):
             attackCount+=1
         else:
             retreatCount+=1
