@@ -87,11 +87,11 @@ class ProcessService(rpyc.Service):
 
     def exposed_addGenerals(self,ports):
         global otherProcessPorts
-        global connections
+        global connections        
         for port in ports:
             otherProcessPorts.append(port)
-        for port in otherProcessPorts:
             connections.append(rpyc.connect("localhost",port))
+            
 
     def exposed_reset_all_ports(self,ports):
         global otherProcessPorts
@@ -202,10 +202,8 @@ class ProcessService(rpyc.Service):
         for command in allCommands:
             if(command==ATTACK):
                 attackCount+=1
-                print( f"{thisPort} Attack")
             else:
                 retreatCount+=1
-                print(f"{thisPort} Retreat")
 
         if(attackCount>retreatCount):
             majorityCommand=ATTACK
