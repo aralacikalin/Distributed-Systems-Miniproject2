@@ -82,7 +82,7 @@ while running:
     cmds = command.split()
 
     if cmds[0] == 'actual-order':
-        ## primary_general is None, then find new primary general
+
         full_output = primary_general.root.giveOrder( cmds[1] )
         
         print( f'G{port_to_id[primary_general_port]}, primary, majority={primary_general.root.getMajority()}, state={primary_general.root.getState()}' )
@@ -153,8 +153,6 @@ while running:
                     general_ports.pop( idx )
                     id_to_port.pop( general_id_to_kill )
                     port_to_id.pop( general_port_to_kill )
-                    #pro = processes[idx+1]
-                    #os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
                     break
         
         primary_general.root.reset_all_ports( general_ports )
@@ -182,8 +180,10 @@ while running:
             p = subprocess.Popen( cmd.split() )
             processes.append(p)
 
+        # sleep is need since we are using subprocess( i.e. new general ). 
+        # We need to wait until it initializes otherwise it won't be possible to connect to the server. 
         time.sleep(2)
-        ### general other_ps_ports ==> add_generals 
+
         for conn in generals:
             conn.root.addGenerals( new_ports )
 
@@ -199,32 +199,6 @@ while running:
 
         for ngen in new_generals:
             generals.append( ngen )
-        
-
-        ### general other_ps_ports ==> add_generals 
-        # for idx, conn in enumerate(generals):
-        #     other_ps_ports = all_ports_except( general_ports, general_ports[idx] )
-        #     conn.root.addGenerals( other_ps_ports )
-
-
-
-            
-    # for idx, general in enumerate(generals):
-
-    #     if command.lower() == 'exit':
-    #         try:
-    #             running=False
-    #             conn.root.exit()
-    #         except:
-    #             break
-    #         break
-    #     else:
-    #         cmd_name, value = command.split()
-
-    #         if cmd_name.lower() == 'time-cs':
-    #             conn.root.time_cs( int(value) )
-    #         elif cmd_name.lower() == 'time-p':
-    #             conn.root.time_p( int(value) )
 
 
 for conn in connections:
