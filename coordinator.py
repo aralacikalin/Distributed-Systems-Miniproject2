@@ -113,6 +113,10 @@ while running:
                 print( f'G{port_to_id[port]}, secondary, state={general_state}' )
 
     elif cmds[0] == 'g-kill':
+        if len( generals ) <= 1:
+            print("ERROR: Kill last general is forbidden!")
+            continue
+
         general_id_to_kill = int(cmds[1])        
         general_port_to_kill = id_to_port[ general_id_to_kill ]
 
