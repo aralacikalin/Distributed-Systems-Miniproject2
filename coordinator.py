@@ -92,7 +92,6 @@ while running:
         if len(cmds) > 1:
             id = int(cmds[1])
             new_state = cmds[2]
-            generals[id-1]
             port = id_to_port[id]
             conn = get_connection_by_port( generals, general_ports, port )
             if conn == None:
