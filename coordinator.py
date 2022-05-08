@@ -99,10 +99,13 @@ while running:
             id = int(cmds[1])
             new_state = cmds[2]
 
+            if id_to_port[id] == primary_general_port:
+                print(f"ERROR: Primary general can't be a TRAITOR!") 
+                continue
+
             if id not in id_to_port:
                 print(f"ERROR: there is no such general with id={general_id_to_kill}") 
                 continue
-
 
             port = id_to_port[id]
             conn = get_connection_by_port( generals, general_ports, port )
