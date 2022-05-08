@@ -98,6 +98,12 @@ while running:
         if len(cmds) > 1:
             id = int(cmds[1])
             new_state = cmds[2]
+
+            if id not in id_to_port:
+                print(f"ERROR: there is no such general with id={general_id_to_kill}") 
+                continue
+
+
             port = id_to_port[id]
             conn = get_connection_by_port( generals, general_ports, port )
             if conn == None:
@@ -113,11 +119,16 @@ while running:
                 print( f'G{port_to_id[port]}, secondary, state={general_state}' )
 
     elif cmds[0] == 'g-kill':
-        if len( generals ) <= 1:
+        if len( generals ) <= 0:
             print("ERROR: Kill last general is forbidden!")
             continue
 
-        general_id_to_kill = int(cmds[1])        
+        general_id_to_kill = int(cmds[1])
+
+        if general_id_to_kill not in id_to_port:
+            print(f"ERROR: there is no such general with id={general_id_to_kill}") 
+            continue
+
         general_port_to_kill = id_to_port[ general_id_to_kill ]
 
         if general_port_to_kill == primary_general_port and generals:
