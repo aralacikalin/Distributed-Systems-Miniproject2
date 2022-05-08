@@ -3,12 +3,14 @@ import sys
 import subprocess
 import rpyc
 import time 
+import os
+import signal 
 
 number_of_processes = int(sys.argv[1])
 
 print(f'N={number_of_processes}')
 
-start_port = 15229
+start_port = 15330
 friendly_id = 1
 primary_general = None
 primary_general_port = start_port
@@ -71,6 +73,10 @@ while running:
     print( "Input the command: " )
     
     command = input()
+    
+    if not command:
+        continue
+
     command = command.lower()
 
     cmds = command.split()
@@ -98,7 +104,7 @@ while running:
                 print( "g-state command FAILED" )
                 continue
 
-            process_output = conn.root.setState( new_state.upper() )
+            process_output = conn.root.setState( 'F' if new_state.upper() == 'FAULTY' else 'NF' )
         else:
             print( f'G{port_to_id[primary_general_port]}, primary, state={primary_general.root.getState()}' )
             for idx, general in enumerate( generals ):
@@ -110,16 +116,31 @@ while running:
         general_id_to_kill = int(cmds[1])        
         general_port_to_kill = id_to_port[ general_id_to_kill ]
 
-        #if general_port_to_kill == primary_general_port:
-        #    #
+        if general_port_to_kill == primary_general_port and generals:
+            primary_general = generals[0]
+            primary_general_port = general_ports[0]
 
-        for idx, general in enumerate( generals ):
-            general_id = port_to_id[ general_ports[idx] ]
-            if general_id == general_id_to_kill:
-                generals.pop( idx )
-                general_ports.pop( idx )
-                break
-    
+            generals = generals[1:]
+            general_ports = general_ports[1:]
+
+            id_to_port.pop( general_id_to_kill )
+            port_to_id.pop( general_port_to_kill )
+            
+        else:
+            for idx, general in enumerate( generals ):
+                general_id = port_to_id[ general_ports[idx] ]
+                if general_id == general_id_to_kill:
+                    generals[idx].close()
+                    generals.pop( idx )
+                    general_ports.pop( idx )
+                    id_to_port.pop( general_id_to_kill )
+                    port_to_id.pop( general_port_to_kill )
+                    #pro = processes[idx+1]
+                    #os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
+                    break
+        
+        primary_general.root.reset_all_ports( general_ports )
+
         for idx, conn in enumerate(generals):
             other_ps_ports = all_ports_except( general_ports, general_ports[idx] )
             conn.root.reset_all_ports( other_ps_ports )
