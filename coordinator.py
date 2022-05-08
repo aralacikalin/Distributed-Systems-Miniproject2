@@ -16,6 +16,7 @@ general_ports = []
 processes = []
 id_to_port = {}
 port_to_id = {}
+generals = []
 
 for i in range(number_of_processes):
     general_ports.append( start_port+i )
@@ -49,7 +50,6 @@ def get_connection_by_port( connectins, ports, port ):
 
 time.sleep(2)
 
-generals = []
 for port in general_ports:
     generals.append( rpyc.connect('localhost',port) )
 
@@ -105,6 +105,25 @@ while running:
                 general_state = general.root.getState()
                 port = general_ports[idx]
                 print( f'G{port_to_id[port]}, secondary, state={general_state}' )
+
+    elif cmds[0] == 'g-kill':
+        general_id_to_kill = int(cmds[1])        
+        general_port_to_kill = id_to_port[ general_id_to_kill ]
+
+        #if general_port_to_kill == primary_general_port:
+        #    #
+
+        for idx, general in enumerate( generals ):
+            general_id = port_to_id[ general_ports[idx] ]
+            if general_id == general_id_to_kill:
+                generals.pop( idx )
+                general_ports.pop( idx )
+                break
+    
+        for idx, conn in enumerate(generals):
+            other_ps_ports = all_ports_except( general_ports, general_ports[idx] )
+            conn.root.reset_all_ports( other_ps_ports )
+
 
     elif cmds[0] == 'g-add':
         old_ports = general_ports.copy()
