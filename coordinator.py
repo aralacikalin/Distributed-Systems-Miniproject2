@@ -120,7 +120,7 @@ while running:
 
     elif cmds[0] == 'g-kill':
         if len( generals ) <= 0:
-            print("ERROR: Kill last general is forbidden!")
+            print("ERROR: Killing last general is forbidden!")
             continue
 
         general_id_to_kill = int(cmds[1])
