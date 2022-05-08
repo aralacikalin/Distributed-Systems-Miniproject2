@@ -81,10 +81,11 @@ while running:
         
         print( f'G{port_to_id[primary_general_port]}, primary, majority={primary_general.root.getMajority()}, state={primary_general.root.getState()}' )
 
-        for general in generals:
+        for idx, general in enumerate( generals ):
             general_state = general.root.getState()
             majority = general.root.getMajority()
-            print( f'G??, secondary, majority={majority}, state={general_state}' )
+            port = general_ports[idx]
+            print( f'G{port_to_id[port]}, secondary, majority={majority}, state={general_state}' )
         
         print( full_output )
     elif cmds[0] == 'g-state':
@@ -101,9 +102,10 @@ while running:
             process_output = conn.root.setState( new_state.upper() )
         else:
             print( f'G{port_to_id[primary_general_port]}, primary, state={primary_general.root.getState()}' )
-            for general in generals:
+            for idx, general in enumerate( generals ):
                 general_state = general.root.getState()
-                print( f'G??, secondary, state={general_state}' )
+                port = general_ports[idx]
+                print( f'G{port_to_id[port]}, secondary, state={general_state}' )
 
     elif cmds[0] == 'g-add':
         old_ports = general_ports.copy()
