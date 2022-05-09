@@ -151,11 +151,11 @@ class ProcessService(rpyc.Service):
         if(attackCount>retreatCount):
             faultyNodesCount=len(connections)-attackCount
             allGeneralCount=attackCount+retreatCount+1
-            return f"Execute order: attack! {faultyNodesCount} faulty node in the system {attackCount} out of {allGeneralCount} quorum suggest attack"
+            return f"Execute order: attack! {faultyNodesCount} faulty node in the system - {attackCount} out of {allGeneralCount} quorum suggest attack"
         elif(attackCount<retreatCount):
             faultyNodesCount=len(connections)-retreatCount
             allGeneralCount=attackCount+retreatCount+1
-            return f"Execute order: retreat! {faultyNodesCount} faulty node in the system {retreatCount} out of {allGeneralCount} quorum suggest retreat"
+            return f"Execute order: retreat! {faultyNodesCount} faulty node in the system - {retreatCount} out of {allGeneralCount} quorum suggest retreat"
         else:
             faultyNodesCount=retreatCount
             allGeneralCount=attackCount+retreatCount+1
